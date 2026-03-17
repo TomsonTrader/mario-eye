@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import GameWrapper from "@/components/GameWrapper";
 
-const FRUITS = ["🍎", "🍊", "🍋", "🍇", "🍓", "🫐", "🍒", "🥝"];
+const ITEMS = ["⚽", "🏆", "🥅", "👟", "🧤", "🟨", "🎽", "🏟️"];
 
 interface Round {
   emoji: string;
@@ -12,7 +12,7 @@ interface Round {
 }
 
 function makeRound(difficulty: number): Round {
-  const emoji = FRUITS[Math.floor(Math.random() * FRUITS.length)];
+  const emoji = ITEMS[Math.floor(Math.random() * ITEMS.length)];
   const max = Math.min(4 + difficulty * 2, 12);
   const count = Math.floor(Math.random() * max) + 2;
   const positions = Array.from({ length: count }, () => ({
@@ -31,7 +31,6 @@ export default function CountItems() {
   const [roundNum, setRoundNum] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [started, setStarted] = useState(false);
-  const [countdown, setCountdown] = useState(0);
 
   const startRound = useCallback((num: number) => {
     const difficulty = Math.floor(num / 3);
@@ -40,29 +39,20 @@ export default function CountItems() {
     setAnswer(null);
     setFeedback(null);
     setShowItems(true);
-    // Hide after display time
     const displayTime = Math.max(1200, 2500 - difficulty * 200);
     setTimeout(() => setShowItems(false), displayTime);
   }, []);
 
   const reset = useCallback(() => {
-    setRound(null);
-    setShowItems(false);
-    setAnswer(null);
-    setFeedback(null);
-    setScore(0);
-    setRoundNum(0);
-    setGameOver(false);
-    setStarted(false);
-    setCountdown(0);
+    setRound(null); setShowItems(false);
+    setAnswer(null); setFeedback(null);
+    setScore(0); setRoundNum(0);
+    setGameOver(false); setStarted(false);
   }, []);
 
   useEffect(() => {
-    if (started && roundNum < 10) {
-      startRound(roundNum);
-    } else if (started && roundNum >= 10) {
-      setGameOver(true);
-    }
+    if (started && roundNum < 10) startRound(roundNum);
+    else if (started && roundNum >= 10) setGameOver(true);
   }, [started, roundNum, startRound]);
 
   const guess = (n: number) => {
@@ -74,9 +64,7 @@ export default function CountItems() {
     } else {
       setFeedback("wrong");
     }
-    setTimeout(() => {
-      setRoundNum((r) => r + 1);
-    }, 1000);
+    setTimeout(() => setRoundNum((r) => r + 1), 1000);
   };
 
   const options = round
@@ -92,8 +80,8 @@ export default function CountItems() {
   return (
     <GameWrapper
       gameId="contar"
-      gameName="¡Cuenta Rápido!"
-      gameEmoji="🍎"
+      gameName="¡Cuenta los Goles!"
+      gameEmoji="🏆"
       color="#E74C3C"
       benefit="Entrena la atención visual rápida y el conteo"
       score={score}
@@ -104,36 +92,33 @@ export default function CountItems() {
         className="relative w-full"
         style={{
           minHeight: "calc(100vh - 56px)",
-          background: "linear-gradient(135deg, #3d0000 0%, #1a0000 100%)",
+          background: "linear-gradient(135deg, #1a0a0a 0%, #3d0d0d 50%, #1a0a0a 100%)",
         }}
       >
         {!started && !gameOver && (
           <div className="absolute inset-0 flex flex-col items-center justify-center z-10 px-6">
-            <div className="text-8xl mb-4 float-anim">🍎</div>
-            <h2 className="text-3xl font-black text-white text-center mb-3">
-              ¡Cuenta Rápido!
-            </h2>
+            <div className="text-8xl mb-4 float-anim">🏆</div>
+            <h2 className="text-3xl font-black text-white text-center mb-3">¡Cuenta los Goles!</h2>
             <p className="text-white/70 text-center mb-8 text-sm leading-relaxed">
-              Aparecerán frutas por un momento. ¡Cuenta cuántas son y elige la respuesta correcta!
+              Aparecerán objetos de fútbol por un momento.
+              ¡Cuenta cuántos son y elige la respuesta correcta!
             </p>
             <button
               onClick={() => setStarted(true)}
               className="px-10 py-5 rounded-3xl text-2xl font-black text-white active:scale-95 transition-transform"
               style={{ background: "#E74C3C" }}
             >
-              ¡JUGAR! 🔢
+              ¡A JUGAR! 🔢
             </button>
           </div>
         )}
 
         {started && round && (
           <>
-            {/* Round indicator */}
             <div className="text-center pt-3 pb-2">
               <span className="text-white/40 text-sm">Ronda {roundNum + 1}/10</span>
             </div>
 
-            {/* Display area */}
             <div
               className="relative mx-4 rounded-2xl overflow-hidden"
               style={{
@@ -148,8 +133,7 @@ export default function CountItems() {
                       key={i}
                       className="absolute text-4xl pointer-events-none bounce-in"
                       style={{
-                        left: `${pos.x}%`,
-                        top: `${pos.y}%`,
+                        left: `${pos.x}%`, top: `${pos.y}%`,
                         transform: "translate(-50%, -50%)",
                         animationDelay: `${i * 0.05}s`,
                       }}
@@ -160,13 +144,14 @@ export default function CountItems() {
                 : (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <p className="text-white/40 text-lg font-bold">
-                      {answer !== null ? (feedback === "correct" ? "✅ ¡Correcto!" : `❌ Eran ${round.count}`) : "¿Cuántas había?"}
+                      {answer !== null
+                        ? feedback === "correct" ? "✅ ¡Correcto! ¡Goool!" : `❌ Eran ${round.count}`
+                        : "¿Cuántos había?"}
                     </p>
                   </div>
                 )}
             </div>
 
-            {/* Answer buttons */}
             {!showItems && answer === null && (
               <div className="grid grid-cols-2 gap-3 mx-4 mt-4">
                 {options.map((opt) => (

@@ -7,14 +7,17 @@ function makeGrid(target: number) {
   const count = 25;
   const nums: number[] = [target];
   while (nums.length < count) {
-    const n = Math.floor(Math.random() * 50) + 1;
+    const n = Math.floor(Math.random() * 99) + 1;
     if (n !== target) nums.push(n);
   }
   return nums.sort(() => Math.random() - 0.5);
 }
 
+const PLAYERS = ["Messi", "Mbappé", "Haaland", "Pedri", "Vini Jr"];
+const PLAYER_IDX = [0];
+
 export default function FindNumber() {
-  const [target, setTarget] = useState(() => Math.floor(Math.random() * 50) + 1);
+  const [target, setTarget] = useState(() => Math.floor(Math.random() * 99) + 1);
   const [grid, setGrid] = useState<number[]>([]);
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(45);
@@ -22,15 +25,17 @@ export default function FindNumber() {
   const [started, setStarted] = useState(false);
   const [flash, setFlash] = useState<number | null>(null);
   const [wrong, setWrong] = useState<number | null>(null);
+  const [playerIdx, setPlayerIdx] = useState(0);
 
   const nextRound = useCallback(() => {
-    const newTarget = Math.floor(Math.random() * 50) + 1;
+    const newTarget = Math.floor(Math.random() * 99) + 1;
     setTarget(newTarget);
     setGrid(makeGrid(newTarget));
+    setPlayerIdx(Math.floor(Math.random() * PLAYERS.length));
   }, []);
 
   const reset = useCallback(() => {
-    const t = Math.floor(Math.random() * 50) + 1;
+    const t = Math.floor(Math.random() * 99) + 1;
     setTarget(t);
     setGrid(makeGrid(t));
     setScore(0);
@@ -40,18 +45,16 @@ export default function FindNumber() {
   }, []);
 
   useEffect(() => {
-    const t = Math.floor(Math.random() * 50) + 1;
+    const t = Math.floor(Math.random() * 99) + 1;
     setTarget(t);
     setGrid(makeGrid(t));
+    setPlayerIdx(Math.floor(Math.random() * PLAYERS.length));
   }, []);
 
   useEffect(() => {
     if (!started || gameOver) return;
     const timer = setInterval(() => {
-      setTimeLeft((t) => {
-        if (t <= 1) { setGameOver(true); return 0; }
-        return t - 1;
-      });
+      setTimeLeft((t) => { if (t <= 1) { setGameOver(true); return 0; } return t - 1; });
     }, 1000);
     return () => clearInterval(timer);
   }, [started, gameOver]);
@@ -61,10 +64,7 @@ export default function FindNumber() {
     if (num === target) {
       setFlash(idx);
       setScore((s) => s + 1);
-      setTimeout(() => {
-        setFlash(null);
-        nextRound();
-      }, 400);
+      setTimeout(() => { setFlash(null); nextRound(); }, 400);
     } else {
       setWrong(idx);
       setTimeout(() => setWrong(null), 400);
@@ -74,8 +74,8 @@ export default function FindNumber() {
   return (
     <GameWrapper
       gameId="numero"
-      gameName="Busca el Número"
-      gameEmoji="🔢"
+      gameName="Dorsal Perdido"
+      gameEmoji="👕"
       color="#2ECC71"
       benefit="Entrena la búsqueda visual y la discriminación"
       score={score}
@@ -87,24 +87,28 @@ export default function FindNumber() {
         className="relative w-full"
         style={{
           minHeight: "calc(100vh - 56px)",
-          background: "linear-gradient(135deg, #003d1a 0%, #001a0d 100%)",
+          background: "linear-gradient(135deg, #0a2a0a 0%, #062006 100%)",
         }}
       >
+        {/* Field pattern */}
+        <div className="absolute inset-0 opacity-5 pointer-events-none" style={{
+          backgroundImage: "repeating-linear-gradient(90deg, transparent, transparent 48px, rgba(255,255,255,0.3) 48px, rgba(255,255,255,0.3) 50px)",
+        }} />
+
         {!started && !gameOver && (
           <div className="absolute inset-0 flex flex-col items-center justify-center z-10 px-6">
-            <div className="text-8xl mb-4 float-anim">🔢</div>
-            <h2 className="text-3xl font-black text-white text-center mb-3">
-              Busca el Número
-            </h2>
+            <div className="text-8xl mb-4 float-anim">👕</div>
+            <h2 className="text-3xl font-black text-white text-center mb-3">Dorsal Perdido</h2>
             <p className="text-white/70 text-center mb-8 text-sm leading-relaxed">
-              Te diré un número. ¡Encuéntralo entre todos los demás lo más rápido que puedas!
+              El entrenador te dice el dorsal de un jugador.
+              ¡Encuéntralo entre todos los dorsales del vestuario!
             </p>
             <button
               onClick={() => setStarted(true)}
               className="px-10 py-5 rounded-3xl text-2xl font-black text-white active:scale-95 transition-transform"
               style={{ background: "#2ECC71" }}
             >
-              ¡JUGAR! 🔍
+              ¡A JUGAR! ⚽
             </button>
           </div>
         )}
@@ -113,7 +117,7 @@ export default function FindNumber() {
           <div className="p-4 flex flex-col items-center">
             {/* Target */}
             <div className="mb-4 text-center">
-              <p className="text-white/60 text-sm mb-1">Encuentra el número</p>
+              <p className="text-white/60 text-xs mb-1">Encuentra el dorsal de {PLAYERS[playerIdx]}</p>
               <div
                 className="text-6xl font-black rounded-2xl px-8 py-3"
                 style={{
@@ -126,24 +130,16 @@ export default function FindNumber() {
               </div>
             </div>
 
-            {/* Grid */}
+            {/* Jerseys grid */}
             <div className="grid grid-cols-5 gap-2 w-full max-w-xs">
               {grid.map((num, idx) => (
                 <button
                   key={idx}
                   onClick={() => tap(idx, num)}
-                  className="aspect-square rounded-xl text-lg font-black flex items-center justify-center active:scale-90 transition-all"
+                  className="aspect-square rounded-xl text-base font-black flex items-center justify-center active:scale-90 transition-all"
                   style={{
-                    background:
-                      flash === idx
-                        ? "#2ECC71"
-                        : wrong === idx
-                        ? "#E74C3C"
-                        : "rgba(255,255,255,0.1)",
-                    color:
-                      flash === idx || wrong === idx
-                        ? "#fff"
-                        : "rgba(255,255,255,0.9)",
+                    background: flash === idx ? "#2ECC71" : wrong === idx ? "#E74C3C" : "rgba(255,255,255,0.1)",
+                    color: flash === idx || wrong === idx ? "#fff" : "rgba(255,255,255,0.9)",
                     border: "1px solid rgba(255,255,255,0.15)",
                     transform: flash === idx ? "scale(1.2)" : "scale(1)",
                   }}

@@ -3,21 +3,20 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import GameWrapper from "@/components/GameWrapper";
 
-interface Star {
+interface Ball {
   id: number;
   x: number;
   y: number;
   size: number;
   speed: number;
   emoji: string;
-  born: number;
 }
 
-const EMOJIS = ["⭐", "🌟", "✨", "💫", "⚡"];
+const EMOJIS = ["⚽", "⚽", "⚽", "🏆", "⭐"];
 let nextId = 0;
 
 export default function StarCatcher() {
-  const [stars, setStars] = useState<Star[]>([]);
+  const [balls, setBalls] = useState<Ball[]>([]);
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(30);
   const [gameOver, setGameOver] = useState(false);
@@ -27,7 +26,7 @@ export default function StarCatcher() {
   const spawnRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const reset = useCallback(() => {
-    setStars([]);
+    setBalls([]);
     setScore(0);
     setTimeLeft(30);
     setGameOver(false);
@@ -36,27 +35,23 @@ export default function StarCatcher() {
     nextId = 0;
   }, []);
 
-  const spawnStar = useCallback(() => {
-    const star: Star = {
+  const spawnBall = useCallback(() => {
+    const ball: Ball = {
       id: nextId++,
       x: 5 + Math.random() * 85,
       y: -10,
-      size: 32 + Math.random() * 24,
-      speed: 15 + Math.random() * 20,
+      size: 36 + Math.random() * 20,
+      speed: 14 + Math.random() * 18,
       emoji: EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
-      born: Date.now(),
     };
-    setStars((prev) => [...prev, star]);
+    setBalls((prev) => [...prev, ball]);
   }, []);
 
-  // Fall animation
   useEffect(() => {
     if (!started || gameOver) return;
     const frame = setInterval(() => {
-      setStars((prev) =>
-        prev
-          .map((s) => ({ ...s, y: s.y + s.speed * 0.05 }))
-          .filter((s) => s.y < 110)
+      setBalls((prev) =>
+        prev.map((b) => ({ ...b, y: b.y + b.speed * 0.05 })).filter((b) => b.y < 110)
       );
     }, 50);
     return () => clearInterval(frame);
@@ -65,23 +60,17 @@ export default function StarCatcher() {
   useEffect(() => {
     if (!started || gameOver) return;
     timerRef.current = setInterval(() => {
-      setTimeLeft((t) => {
-        if (t <= 1) {
-          setGameOver(true);
-          return 0;
-        }
-        return t - 1;
-      });
+      setTimeLeft((t) => { if (t <= 1) { setGameOver(true); return 0; } return t - 1; });
     }, 1000);
-    spawnRef.current = setInterval(spawnStar, 800);
+    spawnRef.current = setInterval(spawnBall, 750);
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
       if (spawnRef.current) clearInterval(spawnRef.current);
     };
-  }, [started, gameOver, spawnStar]);
+  }, [started, gameOver, spawnBall]);
 
-  const tapStar = (id: number, x: number, y: number) => {
-    setStars((prev) => prev.filter((s) => s.id !== id));
+  const tapBall = (id: number, x: number, y: number) => {
+    setBalls((prev) => prev.filter((b) => b.id !== id));
     setScore((s) => s + 1);
     setPopped((p) => [...p, { id, x, y }]);
     setTimeout(() => setPopped((p) => p.filter((pp) => pp.id !== id)), 600);
@@ -90,8 +79,8 @@ export default function StarCatcher() {
   return (
     <GameWrapper
       gameId="estrella"
-      gameName="Caza Estrellas"
-      gameEmoji="⭐"
+      gameName="Cabecea el Balón"
+      gameEmoji="⚽"
       color="#FFD700"
       benefit="Entrena la velocidad de reacción y el seguimiento visual"
       score={score}
@@ -99,74 +88,57 @@ export default function StarCatcher() {
       onRestart={reset}
       timeLeft={timeLeft}
     >
-      <div className="relative w-full h-full" style={{ minHeight: "calc(100vh - 56px)" }}>
-        {/* Stars background gradient */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: "radial-gradient(ellipse at top, #1a1a6e 0%, #0f0f2e 60%)",
-          }}
-        />
+      <div className="relative w-full" style={{ minHeight: "calc(100vh - 56px)" }}>
+        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, #1a1a3e 0%, #0d3d0d 60%, #0a2a0a 100%)" }} />
+        <div className="absolute bottom-0 left-0 right-0" style={{ height: "25%", background: "rgba(255,255,255,0.03)", borderTop: "1px solid rgba(255,255,255,0.1)" }} />
 
         {!started && !gameOver && (
           <div className="absolute inset-0 flex flex-col items-center justify-center z-10 px-6">
-            <div className="text-8xl mb-4 float-anim">⭐</div>
-            <h2 className="text-3xl font-black text-white text-center mb-3">
-              ¡Caza las Estrellas!
-            </h2>
+            <div className="text-8xl mb-4 float-anim">⚽</div>
+            <h2 className="text-3xl font-black text-white text-center mb-3">¡Cabecea el Balón!</h2>
             <p className="text-white/70 text-center mb-8 text-sm leading-relaxed">
-              Toca las estrellas antes de que caigan al suelo.
-              ¡Coge todas las que puedas en 30 segundos!
+              Los balones caen del cielo. ¡Tócalos antes de que lleguen al suelo!
             </p>
             <button
               onClick={() => setStarted(true)}
-              className="px-10 py-5 rounded-3xl text-2xl font-black text-black active:scale-95 transition-transform shadow-lg"
+              className="px-10 py-5 rounded-3xl text-2xl font-black text-black active:scale-95 transition-transform"
               style={{ background: "#FFD700" }}
             >
-              ¡JUGAR! 🚀
+              ¡A JUGAR! 🏟️
             </button>
           </div>
         )}
 
-        {/* Falling stars */}
-        {stars.map((star) => (
+        {balls.map((ball) => (
           <button
-            key={star.id}
-            onClick={() => tapStar(star.id, star.x, star.y)}
-            className="absolute transition-none active:scale-110"
+            key={ball.id}
+            onClick={() => tapBall(ball.id, ball.x, ball.y)}
+            className="absolute"
             style={{
-              left: `${star.x}%`,
-              top: `${star.y}%`,
-              fontSize: star.size,
-              transform: "translate(-50%, -50%)",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              lineHeight: 1,
+              left: `${ball.x}%`, top: `${ball.y}%`,
+              fontSize: ball.size, transform: "translate(-50%, -50%)",
+              background: "none", border: "none", cursor: "pointer", lineHeight: 1,
             }}
           >
-            {star.emoji}
+            {ball.emoji}
           </button>
         ))}
 
-        {/* Pop effects */}
         {popped.map((p) => (
           <div
             key={p.id}
-            className="absolute pointer-events-none text-yellow-300 font-black text-2xl"
+            className="absolute pointer-events-none text-yellow-300 font-black text-xl"
             style={{
-              left: `${p.x}%`,
-              top: `${p.y}%`,
+              left: `${p.x}%`, top: `${p.y}%`,
               transform: "translate(-50%, -50%)",
               animation: "bounce-in 0.6s ease-out forwards",
             }}
           >
-            +1
+            ¡GOL!
           </div>
         ))}
 
-        {/* Ground line */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-red-500/30" />
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20" />
       </div>
     </GameWrapper>
   );

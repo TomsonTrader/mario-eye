@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Mario Eye 👁️",
-  description: "Juegos para entrenar el ojo y mejorar la visión",
+  title: "Mario Eye ⚽",
+  description: "Entrena tu ojo con juegos de fútbol y mejora tu visión",
 };
 
 export const viewport: Viewport = {

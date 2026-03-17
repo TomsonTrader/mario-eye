@@ -72,9 +72,9 @@ export default function GameWrapper({
       {gameOver && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
           <div className="bounce-in bg-white/10 border border-white/30 rounded-3xl p-8 mx-6 text-center max-w-sm w-full">
-            <div className="text-6xl mb-3">{score > 10 ? "🏆" : score > 5 ? "⭐" : "💪"}</div>
+            <div className="text-6xl mb-3">{score > 10 ? "🏆" : score > 5 ? "⚽" : "💪"}</div>
             <h2 className="text-3xl font-black text-white mb-1">
-              {score > 10 ? "¡Increíble!" : score > 5 ? "¡Muy bien!" : "¡Buen intento!"}
+              {score > 10 ? "¡Hat-trick!" : score > 5 ? "¡Golazo!" : "¡Sigue entrenando!"}
             </h2>
             <p className="text-white/60 text-sm mb-2">Puntuación final</p>
             <div className="text-6xl font-black mb-4" style={{ color }}>
@@ -89,7 +89,7 @@ export default function GameWrapper({
                 className="flex-1 py-4 rounded-2xl font-black text-white text-lg active:scale-95 transition-transform"
                 style={{ background: color }}
               >
-                🔄 Otra vez
+                ⚽ Otra vez
               </button>
               <Link href="/" className="flex-1">
                 <button className="w-full py-4 rounded-2xl font-bold text-white text-lg bg-white/10 border border-white/20 active:scale-95 transition-transform">
